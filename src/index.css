@@ -7,6 +7,31 @@
   src: url('./fonts/Black_Han_Sans/BlackHanSans-Regular.ttf') format('truetype');
 }
 
+@font-face {
+  font-family: 'Archivo';
+  src: url('./fonts/Archivo/Archivo-VariableFont_wdth\,wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'AlfaSlabOne';
+  src: url('./fonts/Alfa_Slab_One/AlfaSlabOne-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Kanit';
+  src: url('./fonts/Kanit/Kanit-ExtraBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'LilitaOne';
+  src: url('./fonts/Lilita_One/LilitaOne-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Righteous';
+  src: url('./fonts/Righteous/Righteous-Regular.ttf') format('truetype');
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -14,6 +39,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
 }
 
 code {

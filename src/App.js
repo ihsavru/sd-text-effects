@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import PromptInput from "./components/promptInput.js";
 import "./App.css";
 import ImageCanvas from "./components/imageCanvas.js";
+import FontSelection from "./components/fontSelection.js";
 
 function generateCanvasText(word, canvasRef) {
   const canvas = canvasRef.current;
@@ -31,10 +32,11 @@ function App() {
   const [word, setWord] = useState("");
   const [generating, setGenerating] = useState(false);
   const [generatedImg, setGeneratedImg] = useState();
+  const [font, setFont] = useState("Kanit");
 
   const canvasRef = useRef(null);
 
-  const removeBG = (image) => {
+  const removeBg = (image) => {
     fetch("http://localhost:7860/sdapi/v1/extra-single-image", {
       method: "POST",
       cache: "no-cache",
@@ -91,7 +93,7 @@ function App() {
       .then((data) => {
         const base64Image = data.images[0];
         setGeneratedImg(`data:image/png;base64,${base64Image}`);
-        removeBG(base64Image);
+        removeBg(base64Image);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -107,16 +109,27 @@ function App() {
   };
 
   return (
-    <div className='App'>
-      <ImageCanvas canvasRef={canvasRef} generatedImg={generatedImg} />
-      <PromptInput
-        prompt={prompt}
-        setPrompt={setPrompt}
-        onGenerate={onGenerate}
-        word={word}
-        setWord={setWord}
-        generating={generating}
-      />
+    <div className='App bg-slate-100'>
+      <div className='flex justify-between h-screen'>
+        <div className='relative text-center w-2/3'>
+          <ImageCanvas
+            canvasRef={canvasRef}
+            generatedImg={generatedImg}
+            removeBg={removeBg}
+          />
+          <PromptInput
+            prompt={prompt}
+            setPrompt={setPrompt}
+            onGenerate={onGenerate}
+            word={word}
+            setWord={setWord}
+            generating={generating}
+          />
+        </div>
+        <div className='w-1/3'>
+          <FontSelection font={font} setFont={setFont}></FontSelection>
+        </div>
+      </div>
     </div>
   );
 }
