@@ -3,66 +3,52 @@ import PromptInput from "./components/promptInput.js";
 import "./App.css";
 import ImageCanvas from "./components/imageCanvas.js";
 import FontSelection from "./components/fontSelection.js";
-
-function generateCanvasText(word, canvasRef) {
-  const canvas = canvasRef.current;
-  canvas.width = 512;
-  canvas.height = 512;
-  const ctx = canvas.getContext("2d");
-
-  const fontSize = 200;
-  const fontFamily = "'BlackHanSans'";
-  const text = word;
-  const x = 256;
-  const y = 256;
-
-  ctx.font = `bold ${fontSize}px ${fontFamily}`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  ctx.fillStyle = "black";
-
-  ctx.fillText(text, x, y);
-
-  return canvas.toDataURL("image/png");
-}
+import Header from "./components/header.js";
+import {
+  createTextMask,
+  createText,
+  drawImage,
+} from "./utils/canvas.js";
+import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
 
 function App() {
   const [prompt, setPrompt] = useState("");
   const [word, setWord] = useState("");
   const [generating, setGenerating] = useState(false);
-  const [generatedImg, setGeneratedImg] = useState();
   const [font, setFont] = useState("Kanit");
 
-  const canvasRef = useRef(null);
+  const canvasRef = useRef();
 
-  const removeBg = (image) => {
-    fetch("http://localhost:7860/sdapi/v1/extra-single-image", {
-      method: "POST",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        rembg_model: "u2net",
-        image,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const base64Image = data.image;
-        setGeneratedImg(`data:image/png;base64,${base64Image}`);
-        setGenerating(false);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setGenerating(false);
-      });
+  const generateTextEffect = (img) => {
+    const length = word.length;
+
+    const canvas = canvasRef.current;
+    canvas.width = 512 * length;
+    canvas.height = 512;
+
+    const controlImgSize = 512;
+    const fontSize = 500;
+
+    for (let i = 0; i < word.length; i++) {
+      createTextMask(img, font, word[i], fontSize)
+        .then((dataURL) => {
+          const inputImg = dataURL.split(",")[1];
+          const control = createText(
+            controlImgSize,
+            fontSize,
+            font,
+            word[i]
+          ).split(",")[1];
+          generateImg2Img(inputImg, control, i);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   };
 
-  const generateTxt2Img = (dataURL) => {
-    fetch("http://localhost:7860/sdapi/v1/txt2img", {
+  const generateImg2Img = (inputImg, control, i) => {
+    fetch("http://localhost:7860/sdapi/v1/img2img", {
       method: "POST",
       cache: "no-cache",
       headers: {
@@ -70,10 +56,13 @@ function App() {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        prompt,
+        prompt: `${prompt}, white background`,
+        negative_prompt: NEGATIVE_PROMPT,
         seed: -1,
-        sampler: "Euler",
-        steps: "20",
+        init_images: [inputImg],
+        sampler: "meinamix_meinaV9.safetensors [eac6c08a19]",
+        sampler_index: "DPM++ SDE Karras",
+        steps: 20,
         width: 512,
         height: 512,
         alwayson_scripts: {
@@ -81,7 +70,7 @@ function App() {
             args: [
               {
                 module: "invert (from white bg & black line)",
-                input_image: dataURL,
+                input_image: control,
                 model: "control_v11p_sd15_lineart [43d4be0d]",
               },
             ],
@@ -92,8 +81,41 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         const base64Image = data.images[0];
-        setGeneratedImg(`data:image/png;base64,${base64Image}`);
-        removeBg(base64Image);
+        const imgSrc = `data:image/png;base64,${base64Image}`;
+        const x = 512 * i;
+        drawImage(canvasRef, imgSrc, x, 0);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+      .finally(() => {
+        setGenerating(false);
+      });
+  };
+
+  const generateTxt2Img = (prompt) => {
+    fetch("http://localhost:7860/sdapi/v1/txt2img", {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        prompt: `${prompt}`,
+        negative_prompt: NEGATIVE_PROMPT,
+        seed: -1,
+        sampler: "meinamix_meinaV9.safetensors [eac6c08a19]",
+        sampler_index: "DPM++ SDE Karras",
+        steps: 20,
+        width: 512,
+        height: 512,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const base64Image = data.images[0];
+        generateTextEffect(`data:image/png;base64,${base64Image}`);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -102,21 +124,19 @@ function App() {
   };
 
   const onGenerate = () => {
-    setGenerating(true);
-    const encodedPng = generateCanvasText(word, canvasRef);
-    setGeneratedImg(null);
-    generateTxt2Img(encodedPng.split(",")[1]);
+    if (word && prompt && !generating) {
+      setGenerating(true);
+      generateTxt2Img(prompt);
+      canvasRef.current.innerHTML = "";
+    }
   };
 
   return (
     <div className='App bg-slate-100'>
-      <div className='flex justify-between h-screen'>
-        <div className='relative text-center w-2/3'>
-          <ImageCanvas
-            canvasRef={canvasRef}
-            generatedImg={generatedImg}
-            removeBg={removeBg}
-          />
+      <Header />
+      <div className='flex justify-between h-screen gap-10'>
+        <div className='relative text-center w-3/4 ml-10'>
+          <ImageCanvas word={word} font={font} canvasRef={canvasRef} />
           <PromptInput
             prompt={prompt}
             setPrompt={setPrompt}
@@ -126,7 +146,7 @@ function App() {
             generating={generating}
           />
         </div>
-        <div className='w-1/3'>
+        <div className='w-1/4 mr-10'>
           <FontSelection font={font} setFont={setFont}></FontSelection>
         </div>
       </div>
