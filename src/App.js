@@ -181,7 +181,7 @@ function App() {
   };
 
   return (
-    <div className='App bg-slate-100'>
+    <div className='App bg-gray-900'>
       <Header />
       <div className='flex justify-between h-screen gap-10'>
         <div className='relative text-center w-3/4 ml-10'>

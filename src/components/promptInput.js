@@ -17,19 +17,19 @@ const PromptInput = ({
         value={word}
         onChange={(e) => setWord(e.currentTarget.value)}
         placeholder='Text'
-        className='border border-gray-300 px-6 py-3 rounded w-2/12'
+        className='rounded-lg shadow-md bg-gray-800 text-gray-50 outline-pink-300 px-6 py-3 rounded w-1/6'
       />
       <input
         type='text'
         value={prompt}
         onChange={(e) => setPrompt(e.currentTarget.value)}
         placeholder='metallic balloon'
-        className='border border-gray-300 px-6 py-3 rounded w-8/12'
+        className='px-6 py-3 rounded-lg shadow-md bg-gray-800 text-gray-50 outline-pink-300 w-4/6'
       />
       <button
-        className={classNames("px-6 py-3 rounded uppercase tracking-wide font-bold", {
-          "text-white bg-cyan-700": !disabled,
-          "text-cyan-800 bg-slate-300 cursor-not-allowed": disabled,
+        className={classNames("px-6 py-3 rounded-lg shadow-md tracking-wide font-bold", {
+          "text-gray-800 bg-pink-200 hover:bg-pink-300 ": !disabled,
+          "text-gray-800 bg-gray-700 cursor-not-allowed": disabled,
         })}
         onClick={onGenerate}
       >

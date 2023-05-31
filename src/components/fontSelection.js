@@ -35,20 +35,17 @@ const FONTS = [
 
 const FontSelection = ({ font, setFont }) => {
   return (
-    <div className='p-5 pb-8 bg-white border border-gray-300 rounded mt-20'>
-      <h4 className='font-bold mb-5 text-left text-cyan-700 text-sm'>
-        Select Font:
-      </h4>
+    <div className='p-5 pb-8 text-gray-50 bg-gray-800 mt-20 relative w-full rounded-lg shadow-md sm:text-sm'>
       <div className='grid grid-cols-3 gap-3'>
         {FONTS.map((f) => {
           const isSelected = f.value === font;
           return (
             <StyledText
               className={classnames(
-                "w-full h-20 border flex align-middle cursor-pointer text-2xl rounded",
+                "w-full h-20 flex align-middle cursor-pointer text-2xl rounded-lg shadow-md",
                 {
-                  "bg-orange-100 border-orange-600 text-orange-600": isSelected,
-                  "hover:bg-slate-50": !isSelected,
+                  "bg-gray-700 text-pink-200": isSelected,
+                  "hover:bg-gray-700": !isSelected,
                 }
               )}
               onClick={() => setFont(f.value)}
