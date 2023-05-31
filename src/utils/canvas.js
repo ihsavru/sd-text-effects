@@ -1,9 +1,9 @@
-export const createTextMask = (imgSrc, font, letter, fontSize) => {
+export const createTextMask = (width, height, imgSrc, font, letter, fontSize) => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
-    canvas.width = 512;
-    canvas.height = 512;
+    canvas.width = width;
+    canvas.height = height;
 
     const image = new Image();
     image.src = imgSrc;
@@ -34,11 +34,11 @@ export const createTextMask = (imgSrc, font, letter, fontSize) => {
   });
 };
 
-export const createText = (canvasSize, fontSize, font, letter) => {
+export const createText = (canvasWidth, canvasHeight, fontSize, font, letter) => {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
-  canvas.width = canvasSize;
-  canvas.height = canvasSize;
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
 
   const fontFamily = font;
   const text = letter;
@@ -55,7 +55,7 @@ export const createText = (canvasSize, fontSize, font, letter) => {
   return canvas.toDataURL("image/png");
 };
 
-export const drawImage = (canvasRef, imgSrc, x, y) => {
+export const drawImage = (canvasRef, imgSrc, x, y, width, height) => {
   const canvas = canvasRef.current;
   const context = canvas.getContext("2d");
   const image = new Image();
@@ -63,6 +63,6 @@ export const drawImage = (canvasRef, imgSrc, x, y) => {
   image.src = imgSrc;
 
   image.onload = function () {
-    context.drawImage(image, x, y, 512, 512);
+    context.drawImage(image, x, y, width, height);
   };
 };

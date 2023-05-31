@@ -59,18 +59,20 @@ function App() {
     const length = word.length;
 
     const canvas = canvasRef.current;
-    canvas.width = 512 * length;
+    canvas.width = 300 * length;
     canvas.height = 512;
 
-    const controlImgSize = 512;
+    const width = 300;
+    const height = 516;
     const fontSize = 500;
 
     for (let i = 0; i < word.length; i++) {
-      createTextMask(img, font, word[i], fontSize)
+      createTextMask(width, height, img, font, word[i], fontSize)
         .then((dataURL) => {
           const inputImg = dataURL.split(",")[1];
           const control = createText(
-            controlImgSize,
+            width,
+            height,
             fontSize,
             font,
             word[i]
@@ -98,8 +100,9 @@ function App() {
         init_images: [inputImg],
         sampler_index: "DPM++ SDE Karras",
         steps: 20,
-        width: 512,
+        width: 300,
         height: 512,
+        cfg_scale: 10,
         alwayson_scripts: {
           controlnet: {
             args: [
@@ -117,8 +120,10 @@ function App() {
       .then((data) => {
         const base64Image = data.images[0];
         const imgSrc = `data:image/png;base64,${base64Image}`;
-        const x = 512 * i;
-        drawImage(canvasRef, imgSrc, x, 0);
+        const width = 300;
+        const height = 512;
+        const x = width * i;
+        drawImage(canvasRef, imgSrc, x, 0, width, height);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -142,7 +147,7 @@ function App() {
         seed: -1,
         sampler_index: "DPM++ SDE Karras",
         steps: 20,
-        width: 512,
+        width: 300,
         height: 512,
       }),
     })
