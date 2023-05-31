@@ -1,21 +1,57 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import PromptInput from "./components/promptInput.js";
 import "./App.css";
 import ImageCanvas from "./components/imageCanvas.js";
 import FontSelection from "./components/fontSelection.js";
 import Header from "./components/header.js";
-import {
-  createTextMask,
-  createText,
-  drawImage,
-} from "./utils/canvas.js";
+import { createTextMask, createText, drawImage } from "./utils/canvas.js";
 import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
+import ModelSelection from "./components/modelSelection.js";
 
 function App() {
   const [prompt, setPrompt] = useState("");
   const [word, setWord] = useState("");
   const [generating, setGenerating] = useState(false);
   const [font, setFont] = useState("Kanit");
+
+  const [selectedModel, setSelectedModel] = useState("");
+  const [models, setModels] = useState([]);
+
+  const loadModels = (modelCkpt) => {
+    fetch("http://localhost:7860/sdapi/v1/sd-models", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setModels(data);
+        setSelectedModel(data.find((m) => m.title === modelCkpt));
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  const getConfig = () => {
+    fetch("http://localhost:7860/sdapi/v1/options", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        loadModels(data.sd_model_checkpoint);
+      });
+  };
+
+  useEffect(() => {
+    getConfig();
+  }, []);
 
   const canvasRef = useRef();
 
@@ -60,7 +96,6 @@ function App() {
         negative_prompt: NEGATIVE_PROMPT,
         seed: -1,
         init_images: [inputImg],
-        sampler: "meinamix_meinaV9.safetensors [eac6c08a19]",
         sampler_index: "DPM++ SDE Karras",
         steps: 20,
         width: 512,
@@ -105,7 +140,6 @@ function App() {
         prompt: `${prompt}`,
         negative_prompt: NEGATIVE_PROMPT,
         seed: -1,
-        sampler: "meinamix_meinaV9.safetensors [eac6c08a19]",
         sampler_index: "DPM++ SDE Karras",
         steps: 20,
         width: 512,
@@ -131,6 +165,21 @@ function App() {
     }
   };
 
+  const onSelectModel = (model) => {
+    fetch("http://localhost:7860/sdapi/v1/options", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        sd_model_checkpoint: model.title,
+      }),
+    }).then(() => {
+      setSelectedModel(model);
+    });
+  };
+
   return (
     <div className='App bg-slate-100'>
       <Header />
@@ -148,6 +197,11 @@ function App() {
         </div>
         <div className='w-1/4 mr-10'>
           <FontSelection font={font} setFont={setFont}></FontSelection>
+          <ModelSelection
+            selectedModel={selectedModel}
+            onSelectModel={onSelectModel}
+            models={models}
+          />
         </div>
       </div>
     </div>
