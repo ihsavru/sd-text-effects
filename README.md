@@ -5,9 +5,5 @@ Inspired by Adobe Firefly's text effects, Stable Diffusion Text Effects allows y
 ![](assets/example_1.png)
 ![](assets/example_2.png)
 ![](assets/example_3.png)
-![](assets/example_4.png)
-![](assets/example_5.png)
-![](assets/example_6.png)
-![](assets/example_7.png)
 
 (in development)
