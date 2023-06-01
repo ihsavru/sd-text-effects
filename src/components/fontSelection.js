@@ -1,37 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import classnames from "classnames";
+import { FONTS } from '../constants/fonts'
 
 const StyledText = styled.div`
   font-family: ${(props) => props.font};
 `;
-
-const FONTS = [
-  {
-    label: "Archivo",
-    value: "Archivo",
-  },
-  {
-    label: "Black Han Sans",
-    value: "BlackHanSans",
-  },
-  {
-    label: "Alfa Slab One",
-    value: "AlfaSlabOne",
-  },
-  {
-    label: "Kanit",
-    value: "Kanit",
-  },
-  {
-    label: "Lilita One",
-    value: "LilitaOne",
-  },
-  {
-    label: "Righteous",
-    value: "Righteous",
-  },
-];
 
 const FontSelection = ({ font, setFont }) => {
   return (

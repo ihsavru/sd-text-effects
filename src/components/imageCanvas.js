@@ -7,6 +7,7 @@ const StyledCanvas = styled.canvas`
   font-family: ${(props) => props.font};
   width: inherit;
   max-height: 400px;
+  max-width: fit-content;
 `;
 
 const StyledDiv = styled.div`

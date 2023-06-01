@@ -7,6 +7,7 @@ import Header from "./components/header.js";
 import { createTextMask, createText, drawImage } from "./utils/canvas.js";
 import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
 import ModelSelection from "./components/modelSelection.js";
+import StyleSelection from "./components/styleSelection.js";
 
 function App() {
   const [prompt, setPrompt] = useState("");
@@ -64,7 +65,7 @@ function App() {
 
     const width = 300;
     const height = 516;
-    const fontSize = 500;
+    const fontSize = 490;
 
     for (let i = 0; i < word.length; i++) {
       createTextMask(width, height, img, font, word[i], fontSize)
@@ -147,7 +148,7 @@ function App() {
         seed: -1,
         sampler_index: "DPM++ SDE Karras",
         steps: 20,
-        width: 300,
+        width: 512,
         height: 512,
       }),
     })
@@ -207,6 +208,7 @@ function App() {
             onSelectModel={onSelectModel}
             models={models}
           />
+          <StyleSelection prompt={prompt} setPrompt={setPrompt}></StyleSelection>
         </div>
       </div>
     </div>
