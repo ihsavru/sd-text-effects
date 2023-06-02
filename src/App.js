@@ -65,7 +65,7 @@ function App() {
 
     const width = 300;
     const height = 516;
-    const fontSize = 490;
+    const fontSize = 390;
 
     for (let i = 0; i < word.length; i++) {
       createTextMask(width, height, img, font, word[i], fontSize)
@@ -208,7 +208,10 @@ function App() {
             onSelectModel={onSelectModel}
             models={models}
           />
-          <StyleSelection prompt={prompt} setPrompt={setPrompt}></StyleSelection>
+          <StyleSelection
+            prompt={prompt}
+            setPrompt={setPrompt}
+          ></StyleSelection>
         </div>
       </div>
     </div>
