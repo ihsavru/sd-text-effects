@@ -8,6 +8,7 @@ import { createTextMask, createText, drawImage } from "./utils/canvas.js";
 import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
 import ModelSelection from "./components/modelSelection.js";
 import StyleSelection from "./components/styleSelection.js";
+import ProgressBar from "./components/progressBar.js";
 
 function App() {
   const [prompt, setPrompt] = useState("");
@@ -17,6 +18,7 @@ function App() {
 
   const [selectedModel, setSelectedModel] = useState("");
   const [models, setModels] = useState([]);
+  const [progress, setProgress] = useState(0);
 
   const loadModels = (modelCkpt) => {
     fetch("http://localhost:7860/sdapi/v1/sd-models", {
@@ -134,6 +136,7 @@ function App() {
         const width = 300;
         const height = 512;
         const x = width * i;
+        setProgress((prevProgress) => prevProgress + 1);
         drawImage(canvasRef, imgSrc, x, 0, width, height);
       })
       .catch((error) => {
@@ -162,6 +165,7 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         const base64Image = data.images[0];
+        setProgress(progress + 1);
         generateTextEffect(`data:image/png;base64,${base64Image}`);
       })
       .catch((error) => {
@@ -173,6 +177,7 @@ function App() {
   const onGenerate = () => {
     if (word && prompt && !generating) {
       setGenerating(true);
+      setProgress(0);
       generateTxt2Img(prompt);
       canvasRef.current.innerHTML = "";
     }
@@ -199,6 +204,13 @@ function App() {
       <div className='flex justify-between h-screen gap-10'>
         <div className='relative text-center w-3/4 ml-10'>
           <ImageCanvas word={word} font={font} canvasRef={canvasRef} />
+          {generating && (
+            <ProgressBar
+              value={progress}
+              max={word.length + 1}
+              label='Generating...'
+            />
+          )}
           <PromptInput
             prompt={prompt}
             setPrompt={setPrompt}
