@@ -65,29 +65,39 @@ function App() {
 
     const width = 300;
     const height = 516;
-    const fontSize = 390;
+    const fontSize = 360;
 
+    const masksPromises = [];
+    const reqPromises = [];
     for (let i = 0; i < word.length; i++) {
-      createTextMask(width, height, img, font, word[i], fontSize)
-        .then((dataURL) => {
-          const inputImg = dataURL.split(",")[1];
-          const control = createText(
-            width,
-            height,
-            fontSize,
-            font,
-            word[i]
-          ).split(",")[1];
-          generateImg2Img(inputImg, control, i);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      masksPromises.push(
+        createTextMask(width, height, img, font, word[i], fontSize)
+          .then((dataURL) => {
+            const inputImg = dataURL.split(",")[1];
+            const control = createText(
+              width,
+              height,
+              fontSize,
+              font,
+              word[i]
+            ).split(",")[1];
+            reqPromises.push(generateImg2Img(inputImg, control, i));
+          })
+          .catch((error) => {
+            console.error(error);
+          })
+      );
     }
+
+    Promise.all(masksPromises).then(() => {
+      Promise.all(reqPromises).then(() => {
+        setGenerating(false);
+      });
+    });
   };
 
   const generateImg2Img = (inputImg, control, i) => {
-    fetch("http://localhost:7860/sdapi/v1/img2img", {
+    return fetch("http://localhost:7860/sdapi/v1/img2img", {
       method: "POST",
       cache: "no-cache",
       headers: {
@@ -128,9 +138,6 @@ function App() {
       })
       .catch((error) => {
         console.error("Error:", error);
-      })
-      .finally(() => {
-        setGenerating(false);
       });
   };
 
