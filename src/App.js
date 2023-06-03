@@ -4,7 +4,12 @@ import "./App.css";
 import ImageCanvas from "./components/imageCanvas.js";
 import FontSelection from "./components/fontSelection.js";
 import Header from "./components/header.js";
-import { createTextMask, createText, drawImage } from "./utils/canvas.js";
+import {
+  createTextMask,
+  createText,
+  drawImage,
+  createInpaintMask,
+} from "./utils/canvas.js";
 import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
 import ModelSelection from "./components/modelSelection.js";
 import StyleSelection from "./components/styleSelection.js";
@@ -58,7 +63,7 @@ function App() {
 
   const canvasRef = useRef();
 
-  const generateTextEffect = (img) => {
+  const generateTextEffect = () => {
     const length = word.length;
 
     const canvas = canvasRef.current;
@@ -69,36 +74,42 @@ function App() {
     const height = 516;
     const fontSize = 360;
 
-    const masksPromises = [];
     const reqPromises = [];
     for (let i = 0; i < word.length; i++) {
-      masksPromises.push(
-        createTextMask(width, height, img, font, word[i], fontSize)
-          .then((dataURL) => {
-            const inputImg = dataURL.split(",")[1];
-            const control = createText(
-              width,
-              height,
-              fontSize,
-              font,
-              word[i]
-            ).split(",")[1];
-            reqPromises.push(generateImg2Img(inputImg, control, i));
-          })
-          .catch((error) => {
-            console.error(error);
-          })
+      const control = createText(
+        width,
+        height,
+        fontSize,
+        font,
+        word[i],
+        "#000000"
       );
+      const inputImg = createText(
+        width,
+        height,
+        fontSize,
+        font,
+        word[i],
+        "#F5F5DC"
+      );
+      const mask = createText(
+        width,
+        height,
+        fontSize,
+        font,
+        word[i],
+        "#000000",
+        false
+      );
+      reqPromises.push(generateImg2Img(inputImg, control, mask, i));
     }
 
-    Promise.all(masksPromises).then(() => {
-      Promise.all(reqPromises).then(() => {
-        setGenerating(false);
-      });
+    Promise.all(reqPromises).finally(() => {
+      setGenerating(false);
     });
   };
 
-  const generateImg2Img = (inputImg, control, i) => {
+  const generateImg2Img = (inputImg, control, mask, i) => {
     return fetch("http://localhost:7860/sdapi/v1/img2img", {
       method: "POST",
       cache: "no-cache",
@@ -115,7 +126,11 @@ function App() {
         steps: 20,
         width: 300,
         height: 512,
-        cfg_scale: 10,
+        cfg_scale: 7,
+        mask,
+        inpainting_mask_invert: 1,
+        mask_blur: 20,
+        inpainting_fill: 1,
         alwayson_scripts: {
           controlnet: {
             args: [
@@ -144,41 +159,11 @@ function App() {
       });
   };
 
-  const generateTxt2Img = (prompt) => {
-    fetch("http://localhost:7860/sdapi/v1/txt2img", {
-      method: "POST",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        prompt: `${prompt}`,
-        negative_prompt: NEGATIVE_PROMPT,
-        seed: -1,
-        sampler_index: "DPM++ SDE Karras",
-        steps: 20,
-        width: 512,
-        height: 512,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const base64Image = data.images[0];
-        setProgress(progress + 1);
-        generateTextEffect(`data:image/png;base64,${base64Image}`);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setGenerating(false);
-      });
-  };
-
   const onGenerate = () => {
     if (word && prompt && !generating) {
       setGenerating(true);
       setProgress(0);
-      generateTxt2Img(prompt);
+      generateTextEffect();
       canvasRef.current.innerHTML = "";
     }
   };
@@ -207,7 +192,7 @@ function App() {
           {generating && (
             <ProgressBar
               value={progress}
-              max={word.length + 1}
+              max={word.length}
               label='Generating...'
             />
           )}

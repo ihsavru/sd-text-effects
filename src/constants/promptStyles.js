@@ -8,7 +8,7 @@ export const PROMPT_STYLES = [
     img: "/images/prompts/orange_slices.png",
   },
   {
-    value: "chocolate chip cookies",
+    value: "choco chip cookies",
     img: "/images/prompts/chocolate_chip_cookies.png",
   },
   {

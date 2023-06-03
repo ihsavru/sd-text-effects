@@ -1,4 +1,11 @@
-export const createTextMask = (width, height, imgSrc, font, letter, fontSize) => {
+export const createTextMask = (
+  width,
+  height,
+  imgSrc,
+  font,
+  letter,
+  fontSize
+) => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -34,27 +41,6 @@ export const createTextMask = (width, height, imgSrc, font, letter, fontSize) =>
   });
 };
 
-export const createText = (canvasWidth, canvasHeight, fontSize, font, letter) => {
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
-
-  const fontFamily = font;
-  const text = letter;
-
-  context.fillStyle = "white";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  context.font = `${fontSize}px ${fontFamily}`;
-  context.textAlign = "center";
-  context.fillStyle = "black";
-  context.textBaseline = "middle";
-  context.fillText(text, canvas.width / 2, canvas.height / 2);
-
-  return canvas.toDataURL("image/png");
-};
-
 export const drawImage = (canvasRef, imgSrc, x, y, width, height) => {
   const canvas = canvasRef.current;
   const context = canvas.getContext("2d");
@@ -65,4 +51,58 @@ export const drawImage = (canvasRef, imgSrc, x, y, width, height) => {
   image.onload = function () {
     context.drawImage(image, x, y, width, height);
   };
+};
+
+export const createInpaintMask = (
+  canvasWidth,
+  canvasHeight,
+  fontSize,
+  font,
+  letter
+) => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  const fontFamily = font;
+  const text = letter;
+
+  context.font = `${fontSize}px ${fontFamily}`;
+  context.textAlign = "center";
+  context.fillStyle = "black";
+  context.textBaseline = "middle";
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
+  return canvas.toDataURL("image/png");
+};
+
+export const createText = (
+  canvasWidth,
+  canvasHeight,
+  fontSize,
+  font,
+  letter,
+  fillStyle,
+  bg = true
+) => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+
+  if (bg) {
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  const fontFamily = font;
+  const text = letter;
+
+  context.font = `${fontSize}px ${fontFamily}`;
+  context.textAlign = "center";
+  context.fillStyle = fillStyle;
+  context.textBaseline = "middle";
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
+  return canvas.toDataURL("image/png").split(",")[1];
 };
