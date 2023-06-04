@@ -4,12 +4,7 @@ import "./App.css";
 import ImageCanvas from "./components/imageCanvas.js";
 import FontSelection from "./components/fontSelection.js";
 import Header from "./components/header.js";
-import {
-  createTextMask,
-  createText,
-  drawImage,
-  createInpaintMask,
-} from "./utils/canvas.js";
+import { createText, drawImage } from "./utils/canvas.js";
 import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
 import ModelSelection from "./components/modelSelection.js";
 import StyleSelection from "./components/styleSelection.js";
@@ -138,6 +133,8 @@ function App() {
                 module: "invert (from white bg & black line)",
                 input_image: control,
                 model: "control_v11p_sd15_lineart [43d4be0d]",
+                pixel_perfect: true,
+                lowvram: true,
               },
             ],
           },
