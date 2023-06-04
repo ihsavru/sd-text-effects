@@ -85,7 +85,7 @@ function App() {
         fontSize,
         font,
         word[i],
-        "#F5F5DC"
+        "brown"
       );
       const mask = createText(
         width,
