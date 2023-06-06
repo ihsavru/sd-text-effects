@@ -1,12 +1,44 @@
-export const drawImage = (canvasRef, imgSrc, x, y, width, height) => {
-  const canvas = canvasRef.current;
-  const context = canvas.getContext("2d");
+export const drawImage = (
+  canvasRef,
+  imgSrc,
+  x,
+  y,
+  width,
+  height,
+  fontSize,
+  fontFamily,
+  text
+) => {
+  const targetCanvas = canvasRef.current;
+  const targetContext = targetCanvas.getContext("2d");
   const image = new Image();
 
   image.src = imgSrc;
 
   image.onload = function () {
-    context.drawImage(image, x, y, width, height);
+    const sourceCanvas = document.createElement("canvas");
+    const sourceContext = sourceCanvas.getContext("2d");
+    sourceCanvas.width = 300;
+    sourceCanvas.height = 512;
+
+    sourceContext.font = `${fontSize}px ${fontFamily}`;
+    sourceContext.textAlign = "center";
+    sourceContext.textBaseline = "middle";
+    sourceContext.fillText(
+      text,
+      sourceCanvas.width / 2,
+      sourceCanvas.height / 2
+    );
+    sourceContext.globalCompositeOperation = "source-in";
+    sourceContext.drawImage(
+      image,
+      0,
+      0,
+      sourceCanvas.width,
+      sourceCanvas.height
+    );
+
+    targetContext.drawImage(sourceCanvas, x, y, width, height);
   };
 };
 

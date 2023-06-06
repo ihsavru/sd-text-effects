@@ -66,7 +66,7 @@ function App() {
     canvas.height = 512;
 
     const width = 300;
-    const height = 516;
+    const height = 512;
     const fontSize = 360;
 
     const reqPromises = [];
@@ -85,7 +85,7 @@ function App() {
         fontSize,
         font,
         word[i],
-        "brown"
+        "grey"
       );
       const mask = createText(
         width,
@@ -96,7 +96,7 @@ function App() {
         "#000000",
         false
       );
-      reqPromises.push(generateImg2Img(inputImg, control, mask, i));
+      reqPromises.push(generateImg2Img(inputImg, control, mask, i, word[i]));
     }
 
     Promise.all(reqPromises).finally(() => {
@@ -104,7 +104,7 @@ function App() {
     });
   };
 
-  const generateImg2Img = (inputImg, control, mask, i) => {
+  const generateImg2Img = (inputImg, control, mask, i, letter) => {
     return fetch("http://localhost:7860/sdapi/v1/img2img", {
       method: "POST",
       cache: "no-cache",
@@ -148,8 +148,9 @@ function App() {
         const width = 300;
         const height = 512;
         const x = width * i;
+        const fontSize = 360;
         setProgress((prevProgress) => prevProgress + 1);
-        drawImage(canvasRef, imgSrc, x, 0, width, height);
+        drawImage(canvasRef, imgSrc, x, 0, width, height, fontSize, font, letter);
       })
       .catch((error) => {
         console.error("Error:", error);
