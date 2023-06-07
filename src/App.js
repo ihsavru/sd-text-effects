@@ -4,7 +4,12 @@ import "./App.css";
 import ImageCanvas from "./components/imageCanvas.js";
 import FontSelection from "./components/fontSelection.js";
 import Header from "./components/header.js";
-import { createText, drawImage, createTextMask } from "./utils/canvas.js";
+import {
+  createText,
+  drawImage,
+  createTextMask,
+  clearCanvas,
+} from "./utils/canvas.js";
 import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
 import ModelSelection from "./components/modelSelection.js";
 import StyleSelection from "./components/styleSelection.js";
@@ -225,6 +230,7 @@ function App() {
       setProgressValue(0);
       setProgressMax(word.length + 1);
       generateTextEffect();
+      clearCanvas(canvasRef);
       canvasRef.current.innerHTML = "";
     }
   };
