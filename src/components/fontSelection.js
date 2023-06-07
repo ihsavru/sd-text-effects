@@ -18,7 +18,7 @@ const FontSelection = ({ font, setFont }) => {
               className={classnames(
                 "w-full h-20 flex align-middle cursor-pointer text-2xl rounded-lg shadow-md",
                 {
-                  "bg-slate-100 text-emerald-500": isSelected,
+                  "text-slate-50 bg-emerald-500": isSelected,
                   "hover:bg-slate-100": !isSelected,
                 }
               )}

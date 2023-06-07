@@ -30,7 +30,7 @@ const PromptInput = ({
         className={classNames(
           "px-6 py-3 rounded-lg shadow-md tracking-wide font-bold",
           {
-            "text-white bg-emerald-500 hover:bg-emerald-300 ": !disabled,
+            "text-white bg-emerald-500 hover:bg-emerald-600 ": !disabled,
             "text-white bg-slate-200 cursor-not-allowed": disabled,
           }
         )}

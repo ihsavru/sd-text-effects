@@ -60,7 +60,7 @@ const ImageCanvas = ({ word, font, canvasRef }) => {
           className='absolute top-3 right-3 rounded-lg text-xs text-white'
         >
           <div>
-            <Menu.Button className='inline-flex w-full justify-center rounded-md bg-emerald-400 px-2 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75'>
+            <Menu.Button className='inline-flex w-full justify-center rounded-md bg-emerald-500 px-2 py-1.5 text-sm font-medium text-white hover:bg-emerald-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75'>
               <ArrowDownTrayIcon className='h-4 w-4' aria-hidden='true' />
             </Menu.Button>
           </div>
