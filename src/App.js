@@ -83,6 +83,18 @@ function App() {
         masksPromises.push(
           createTextMask(width, height, img, font, word[i], fontSize)
             .then((dataURL) => {
+              const x = width * i;
+              drawImage(
+                canvasRef,
+                img,
+                x,
+                0,
+                width,
+                height,
+                fontSize,
+                font,
+                word[i]
+              );
               const inputImg = dataURL.split(",")[1];
               const control = createText(
                 width,
@@ -237,7 +249,12 @@ function App() {
       <Header />
       <div className='flex justify-between h-screen gap-10'>
         <div className='relative text-center w-3/4 ml-10'>
-          <ImageCanvas word={word} font={font} canvasRef={canvasRef} />
+          <ImageCanvas
+            word={word}
+            font={font}
+            canvasRef={canvasRef}
+            generating={generating}
+          />
           {generating && (
             <ProgressBar
               value={progressValue}

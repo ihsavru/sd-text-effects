@@ -1,4 +1,5 @@
 import React, { Fragment } from "react";
+import classnames from "classnames";
 import styled from "styled-components";
 import { Menu, Transition } from "@headlessui/react";
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
@@ -14,7 +15,7 @@ const StyledDiv = styled.div`
   height: 400px;
 `;
 
-const ImageCanvas = ({ word, font, canvasRef }) => {
+const ImageCanvas = ({ word, font, canvasRef, generating }) => {
   const downloadImg = (dataURL) => {
     const downloadLink = document.createElement("a");
     downloadLink.href = dataURL;
@@ -96,7 +97,7 @@ const ImageCanvas = ({ word, font, canvasRef }) => {
           </Transition>
         </Menu>
         <StyledCanvas
-          className='rounded-lg h-fit m-auto'
+          className={classnames("rounded-lg h-fit m-auto", { "animate-pulse	": generating })}
           ref={canvasRef}
           font={font}
         >
