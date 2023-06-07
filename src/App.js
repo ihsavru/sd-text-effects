@@ -4,7 +4,7 @@ import "./App.css";
 import ImageCanvas from "./components/imageCanvas.js";
 import FontSelection from "./components/fontSelection.js";
 import Header from "./components/header.js";
-import { createText, drawImage } from "./utils/canvas.js";
+import { createText, drawImage, createTextMask } from "./utils/canvas.js";
 import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
 import ModelSelection from "./components/modelSelection.js";
 import StyleSelection from "./components/styleSelection.js";
@@ -18,7 +18,8 @@ function App() {
 
   const [selectedModel, setSelectedModel] = useState("");
   const [models, setModels] = useState([]);
-  const [progress, setProgress] = useState(0);
+  const [progressValue, setProgressValue] = useState(0);
+  const [progressMax, setProgressMax] = useState(0);
 
   const loadModels = (modelCkpt) => {
     fetch("http://localhost:7860/sdapi/v1/sd-models", {
@@ -59,48 +60,62 @@ function App() {
   const canvasRef = useRef();
 
   const generateTextEffect = () => {
-    const length = word.length;
+    generateTxt2Img(prompt).then((data) => {
+      const base64Image = data.images[0];
+      setProgressValue((prevProgress) => prevProgress + 1);
 
-    const canvas = canvasRef.current;
-    canvas.width = 300 * length;
-    canvas.height = 512;
+      const length = word.length;
 
-    const width = 300;
-    const height = 512;
-    const fontSize = 360;
+      const canvas = canvasRef.current;
+      canvas.width = 300 * length;
+      canvas.height = 512;
 
-    const reqPromises = [];
-    for (let i = 0; i < word.length; i++) {
-      const control = createText(
-        width,
-        height,
-        fontSize,
-        font,
-        word[i],
-        "#000000"
-      );
-      const inputImg = createText(
-        width,
-        height,
-        fontSize,
-        font,
-        word[i],
-        "grey"
-      );
-      const mask = createText(
-        width,
-        height,
-        fontSize,
-        font,
-        word[i],
-        "#000000",
-        false
-      );
-      reqPromises.push(generateImg2Img(inputImg, control, mask, i, word[i]));
-    }
+      const width = 300;
+      const height = 512;
+      const fontSize = 360;
 
-    Promise.all(reqPromises).finally(() => {
-      setGenerating(false);
+      const masksPromises = [];
+      const reqPromises = [];
+
+      const img = `data:image/png;base64,${base64Image}`;
+
+      for (let i = 0; i < word.length; i++) {
+        masksPromises.push(
+          createTextMask(width, height, img, font, word[i], fontSize)
+            .then((dataURL) => {
+              const inputImg = dataURL.split(",")[1];
+              const control = createText(
+                width,
+                height,
+                fontSize,
+                font,
+                word[i],
+                "#000000"
+              );
+              const mask = createText(
+                width,
+                height,
+                fontSize,
+                font,
+                word[i],
+                "#000000",
+                false
+              );
+              reqPromises.push(
+                generateImg2Img(inputImg, control, mask, i, word[i])
+              );
+            })
+            .catch((error) => {
+              console.error(error);
+            })
+        );
+      }
+
+      Promise.all(masksPromises).then(() => {
+        Promise.all(reqPromises).then(() => {
+          setGenerating(false);
+        });
+      });
     });
   };
 
@@ -149,7 +164,7 @@ function App() {
         const height = 512;
         const x = width * i;
         const fontSize = 360;
-        setProgress((prevProgress) => prevProgress + 1);
+        setProgressValue((prevProgress) => prevProgress + 1);
         drawImage(
           canvasRef,
           imgSrc,
@@ -167,10 +182,36 @@ function App() {
       });
   };
 
+  const generateTxt2Img = (prompt) => {
+    return fetch("http://localhost:7860/sdapi/v1/txt2img", {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        prompt: `${prompt}`,
+        negative_prompt: NEGATIVE_PROMPT,
+        seed: -1,
+        sampler_index: "DPM++ SDE Karras",
+        steps: 20,
+        width: 512,
+        height: 512,
+      }),
+    })
+      .then((response) => response.json())
+      .catch((error) => {
+        console.error("Error:", error);
+        setGenerating(false);
+      });
+  };
+
   const onGenerate = () => {
     if (word && prompt && !generating) {
       setGenerating(true);
-      setProgress(0);
+      setProgressValue(0);
+      setProgressMax(word.length + 1);
       generateTextEffect();
       canvasRef.current.innerHTML = "";
     }
@@ -199,8 +240,8 @@ function App() {
           <ImageCanvas word={word} font={font} canvasRef={canvasRef} />
           {generating && (
             <ProgressBar
-              value={progress}
-              max={word.length}
+              value={progressValue}
+              max={progressMax}
               label='Generating...'
             />
           )}
