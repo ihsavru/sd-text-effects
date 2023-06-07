@@ -11,13 +11,13 @@ const ProgressBar = ({ value, max, label }) => {
 
   return (
     <>
-      <div className='w-full mt-5 bg-gray-100 h-2 rounded'>
+      <div className='w-full mt-5 bg-white h-2 rounded'>
         <StyledProgress
-          className='rounded bg-pink-500 h-full'
+          className='rounded bg-emerald-500 h-full'
           progress={progress}
         ></StyledProgress>
       </div>
-      <span className="text-gray-50">{label || "Please wait..."}</span>
+      <span className='text-slate-900'>{label || "Please wait..."}</span>
     </>
   );
 };

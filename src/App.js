@@ -150,7 +150,17 @@ function App() {
         const x = width * i;
         const fontSize = 360;
         setProgress((prevProgress) => prevProgress + 1);
-        drawImage(canvasRef, imgSrc, x, 0, width, height, fontSize, font, letter);
+        drawImage(
+          canvasRef,
+          imgSrc,
+          x,
+          0,
+          width,
+          height,
+          fontSize,
+          font,
+          letter
+        );
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -182,7 +192,7 @@ function App() {
   };
 
   return (
-    <div className='App bg-gray-900'>
+    <div className='App bg-slate-100'>
       <Header />
       <div className='flex justify-between h-screen gap-10'>
         <div className='relative text-center w-3/4 ml-10'>

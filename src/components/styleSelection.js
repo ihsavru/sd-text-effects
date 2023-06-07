@@ -8,7 +8,7 @@ const StyledDiv = styled.div`
 
 const StyleSelection = ({ prompt, setPrompt }) => {
   return (
-    <StyledDiv className='p-5 overflow-scroll h-1/3 pb-8 text-gray-50 bg-gray-800 mt-5 relative w-full rounded-lg shadow-md sm:text-sm'>
+    <StyledDiv className='p-5 overflow-scroll h-1/3 pb-8 text-slate-900 bg-white mt-5 relative w-full rounded-lg shadow-md sm:text-sm'>
       <div className='grid grid-cols-2 gap-5 overflow-scroll'>
         {PROMPT_STYLES.map((p) => {
           return (
