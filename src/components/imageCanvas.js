@@ -28,7 +28,7 @@ const ImageCanvas = ({ word, font, canvasRef, generating }) => {
     const dataURL = canvas.toDataURL();
 
     if (!bg) {
-      fetch("http://localhost:7860/sdapi/v1/extra-single-image", {
+      fetch("http://localhost:7861/sdapi/v1/extra-single-image", {
         method: "POST",
         cache: "no-cache",
         headers: {

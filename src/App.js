@@ -27,7 +27,7 @@ function App() {
   const [progressMax, setProgressMax] = useState(0);
 
   const loadModels = (modelCkpt) => {
-    fetch("http://localhost:7860/sdapi/v1/sd-models", {
+    fetch("http://localhost:7861/sdapi/v1/sd-models", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -45,7 +45,7 @@ function App() {
   };
 
   const getConfig = () => {
-    fetch("http://localhost:7860/sdapi/v1/options", {
+    fetch("http://localhost:7861/sdapi/v1/options", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -137,7 +137,7 @@ function App() {
   };
 
   const generateImg2Img = (inputImg, control, mask, i, letter) => {
-    return fetch("http://localhost:7860/sdapi/v1/img2img", {
+    return fetch("http://localhost:7861/sdapi/v1/img2img", {
       method: "POST",
       cache: "no-cache",
       headers: {
@@ -200,7 +200,7 @@ function App() {
   };
 
   const generateTxt2Img = (prompt) => {
-    return fetch("http://localhost:7860/sdapi/v1/txt2img", {
+    return fetch("http://localhost:7861/sdapi/v1/txt2img", {
       method: "POST",
       cache: "no-cache",
       headers: {
@@ -231,12 +231,11 @@ function App() {
       setProgressMax(word.length + 1);
       generateTextEffect();
       clearCanvas(canvasRef);
-      canvasRef.current.innerHTML = "";
     }
   };
 
   const onSelectModel = (model) => {
-    fetch("http://localhost:7860/sdapi/v1/options", {
+    fetch("http://localhost:7861/sdapi/v1/options", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
