@@ -45,7 +45,7 @@ function App() {
   };
 
   const getConfig = () => {
-    fetch("http://localhost:7861/sdapi/v1/options", {
+    fetch("http://localhost:7860/sdapi/v1/options", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
