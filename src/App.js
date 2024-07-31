@@ -148,7 +148,8 @@ function App() {
         negative_prompt: NEGATIVE_PROMPT,
         seed: -1,
         init_images: [inputImg],
-        sampler_index: "DPM++ 2M SDE",
+        sampler_name: "Euler",
+        scheduler: "Kerras",
         steps: 20,
         width: 300,
         height: 512,
@@ -158,7 +159,7 @@ function App() {
         mask_blur: 20,
         inpainting_fill: 1,
         inpaint_full_res: true,
-        inpaint_full_res_padding: 20,
+        inpaint_full_res_padding: 30,
         alwayson_scripts: {
           controlnet: {
             args: [
@@ -167,7 +168,7 @@ function App() {
                 module: "invert (from white bg & black line)",
                 image: control,
                 model: "ControlNet v11p sd15 lineart",
-                pixel_perfect: true,
+                pixel_perfect: false,
                 low_vram: true,
               },
             ],

@@ -67,7 +67,10 @@ export const createText = (
   context.font = `${fontSize}px ${fontFamily}`
   context.textAlign = "center"
   context.fillStyle = "black"
+  context.strokeStyle = "black"
+  context.lineWidth = 10
   context.textBaseline = "middle"
+  context.strokeText(text, canvas.width / 2, canvas.height / 2)
   context.fillText(text, canvas.width / 2, canvas.height / 2)
   return canvas.toDataURL("image/png").split(",")[1]
 }
