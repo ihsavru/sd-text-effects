@@ -1,30 +1,30 @@
-import { useState, useRef, useEffect } from "react";
-import PromptInput from "./components/promptInput.js";
-import "./App.css";
-import ImageCanvas from "./components/imageCanvas.js";
-import FontSelection from "./components/fontSelection.js";
-import Header from "./components/header.js";
+import { useState, useRef, useEffect } from "react"
+import PromptInput from "./components/promptInput.js"
+import "./App.css"
+import ImageCanvas from "./components/imageCanvas.js"
+import FontSelection from "./components/fontSelection.js"
+import Header from "./components/header.js"
 import {
   createText,
   drawImage,
   createTextMask,
   clearCanvas,
-} from "./utils/canvas.js";
-import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js";
-import ModelSelection from "./components/modelSelection.js";
-import StyleSelection from "./components/styleSelection.js";
-import ProgressBar from "./components/progressBar.js";
+} from "./utils/canvas.js"
+import { NEGATIVE_PROMPT } from "./constants/promptModifiers.js"
+import ModelSelection from "./components/modelSelection.js"
+import StyleSelection from "./components/styleSelection.js"
+import ProgressBar from "./components/progressBar.js"
 
 function App() {
-  const [prompt, setPrompt] = useState("");
-  const [word, setWord] = useState("");
-  const [generating, setGenerating] = useState(false);
-  const [font, setFont] = useState("Kanit");
+  const [prompt, setPrompt] = useState("")
+  const [word, setWord] = useState("")
+  const [generating, setGenerating] = useState(false)
+  const [font, setFont] = useState("Kanit")
 
-  const [selectedModel, setSelectedModel] = useState("");
-  const [models, setModels] = useState([]);
-  const [progressValue, setProgressValue] = useState(0);
-  const [progressMax, setProgressMax] = useState(0);
+  const [selectedModel, setSelectedModel] = useState("")
+  const [models, setModels] = useState([])
+  const [progressValue, setProgressValue] = useState(0)
+  const [progressMax, setProgressMax] = useState(0)
 
   const loadModels = (modelCkpt) => {
     fetch("http://localhost:7861/sdapi/v1/sd-models", {
@@ -36,13 +36,13 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
-        setModels(data);
-        setSelectedModel(data.find((m) => m.title === modelCkpt));
+        setModels(data)
+        setSelectedModel(data.find((m) => m.title === modelCkpt))
       })
       .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
+        console.error("Error:", error)
+      })
+  }
 
   const getConfig = () => {
     fetch("http://localhost:7861/sdapi/v1/options", {
@@ -54,41 +54,41 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
-        loadModels(data.sd_model_checkpoint);
-      });
-  };
+        loadModels(data.sd_model_checkpoint)
+      })
+  }
 
   useEffect(() => {
-    getConfig();
-  }, []);
+    getConfig()
+  }, [])
 
-  const canvasRef = useRef();
+  const canvasRef = useRef()
 
   const generateTextEffect = () => {
     generateTxt2Img(prompt).then((data) => {
-      const base64Image = data.images[0];
-      setProgressValue((prevProgress) => prevProgress + 1);
+      const base64Image = data.images[0]
+      setProgressValue((prevProgress) => prevProgress + 1)
 
-      const length = word.length;
+      const length = word.length
 
-      const canvas = canvasRef.current;
-      canvas.width = 300 * length;
-      canvas.height = 512;
+      const canvas = canvasRef.current
+      canvas.width = 300 * length
+      canvas.height = 512
 
-      const width = 300;
-      const height = 512;
-      const fontSize = 360;
+      const width = 300
+      const height = 512
+      const fontSize = 360
 
-      const masksPromises = [];
-      const reqPromises = [];
+      const masksPromises = []
+      const reqPromises = []
 
-      const img = `data:image/png;base64,${base64Image}`;
+      const img = `data:image/png;base64,${base64Image}`
 
       for (let i = 0; i < word.length; i++) {
         masksPromises.push(
           createTextMask(width, height, img, font, word[i], fontSize)
             .then((dataURL) => {
-              const x = width * i;
+              const x = width * i
               drawImage(
                 canvasRef,
                 img,
@@ -99,8 +99,8 @@ function App() {
                 fontSize,
                 font,
                 word[i]
-              );
-              const inputImg = dataURL.split(",")[1];
+              )
+              const inputImg = dataURL.split(",")[1]
               const control = createText(
                 width,
                 height,
@@ -108,7 +108,7 @@ function App() {
                 font,
                 word[i],
                 "#000000"
-              );
+              )
               const mask = createText(
                 width,
                 height,
@@ -116,25 +116,24 @@ function App() {
                 font,
                 word[i],
                 "#000000",
-                false
-              );
+              )
               reqPromises.push(
                 generateImg2Img(inputImg, control, mask, i, word[i])
-              );
+              )
             })
             .catch((error) => {
-              console.error(error);
+              console.error(error)
             })
-        );
+        )
       }
 
       Promise.all(masksPromises).then(() => {
         Promise.all(reqPromises).then(() => {
-          setGenerating(false);
-        });
-      });
-    });
-  };
+          setGenerating(false)
+        })
+      })
+    })
+  }
 
   const generateImg2Img = (inputImg, control, mask, i, letter) => {
     return fetch("http://localhost:7861/sdapi/v1/img2img", {
@@ -149,24 +148,27 @@ function App() {
         negative_prompt: NEGATIVE_PROMPT,
         seed: -1,
         init_images: [inputImg],
-        sampler_index: "DPM++ SDE Karras",
+        sampler_index: "DPM++ 2M SDE",
         steps: 20,
         width: 300,
         height: 512,
         cfg_scale: 7,
-        mask,
+        mask: control,
         inpainting_mask_invert: 1,
         mask_blur: 20,
         inpainting_fill: 1,
+        inpaint_full_res: true,
+        inpaint_full_res_padding: 20,
         alwayson_scripts: {
           controlnet: {
             args: [
               {
+                enabled: true,
                 module: "invert (from white bg & black line)",
-                input_image: control,
-                model: "control_v11p_sd15_lineart [43d4be0d]",
+                image: control,
+                model: "ControlNet v11p sd15 lineart",
                 pixel_perfect: true,
-                lowvram: true,
+                low_vram: true,
               },
             ],
           },
@@ -175,13 +177,13 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
-        const base64Image = data.images[0];
-        const imgSrc = `data:image/png;base64,${base64Image}`;
-        const width = 300;
-        const height = 512;
-        const x = width * i;
-        const fontSize = 360;
-        setProgressValue((prevProgress) => prevProgress + 1);
+        const base64Image = data.images[0]
+        const imgSrc = `data:image/png;base64,${base64Image}`
+        const width = 300
+        const height = 512
+        const x = width * i
+        const fontSize = 360
+        setProgressValue((prevProgress) => prevProgress + 1)
         drawImage(
           canvasRef,
           imgSrc,
@@ -191,13 +193,14 @@ function App() {
           height,
           fontSize,
           font,
-          letter
-        );
+          letter,
+          false
+        )
       })
       .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
+        console.error("Error:", error)
+      })
+  }
 
   const generateTxt2Img = (prompt) => {
     return fetch("http://localhost:7861/sdapi/v1/txt2img", {
@@ -211,7 +214,7 @@ function App() {
         prompt: `${prompt}`,
         negative_prompt: NEGATIVE_PROMPT,
         seed: -1,
-        sampler_index: "DPM++ SDE Karras",
+        sampler_index: "DPM++ 2MSDE",
         steps: 20,
         width: 512,
         height: 512,
@@ -219,20 +222,20 @@ function App() {
     })
       .then((response) => response.json())
       .catch((error) => {
-        console.error("Error:", error);
-        setGenerating(false);
-      });
-  };
+        console.error("Error:", error)
+        setGenerating(false)
+      })
+  }
 
   const onGenerate = () => {
     if (word && prompt && !generating) {
-      setGenerating(true);
-      setProgressValue(0);
-      setProgressMax(word.length + 1);
-      generateTextEffect();
-      clearCanvas(canvasRef);
+      setGenerating(true)
+      setProgressValue(0)
+      setProgressMax(word.length + 1)
+      generateTextEffect()
+      clearCanvas(canvasRef)
     }
-  };
+  }
 
   const onSelectModel = (model) => {
     fetch("http://localhost:7861/sdapi/v1/options", {
@@ -245,9 +248,9 @@ function App() {
         sd_model_checkpoint: model.title,
       }),
     }).then(() => {
-      setSelectedModel(model);
-    });
-  };
+      setSelectedModel(model)
+    })
+  }
 
   return (
     <div className='App bg-slate-100'>
@@ -290,7 +293,7 @@ function App() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
